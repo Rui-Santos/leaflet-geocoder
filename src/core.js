@@ -55,8 +55,8 @@ var Geocoder = L.Control.extend({
 
   options: {
     position: 'topleft',
-    attribution: 'Geocoding by <a href="https://mapzen.com/projects/search/">Mapzen</a>',
-    url: 'https://search.mapzen.com/v1',
+    attribution: 'Geocoding by <a href="https://search.tpp.pt/">TPP</a>',
+    url: 'https://search.tpp.pt',
     placeholder: null, // Note: this is now just an alias for textStrings.INPUT_PLACEHOLDER
     bounds: false,
     focus: true,
@@ -79,7 +79,7 @@ var Geocoder = L.Control.extend({
     // version, because XDomainRequest does not allow http-to-https requests
     // This is set first so it can always be overridden by the user
     if (window.XDomainRequest) {
-      this.options.url = '//search.mapzen.com/v1';
+      this.options.url = '//search.tpp.pt';
     }
 
     // If the apiKey is omitted entirely and the
@@ -97,16 +97,16 @@ var Geocoder = L.Control.extend({
       if (typeof options.focus === 'undefined') {
         options.focus = options.latlng;
       }
-      console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
-        'As of v1.6.0, the `latlng` option is deprecated. It has been renamed to `focus`. `latlng` will be removed in a future version.');
+      //console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
+        //'As of v1.6.0, the `latlng` option is deprecated. It has been renamed to `focus`. `latlng` will be removed in a future version.');
     }
 
     // Deprecate `title` option
     if (options && typeof options.title !== 'undefined') {
       options.textStrings = options.textStrings || {};
       options.textStrings.INPUT_TITLE_ATTRIBUTE = options.title;
-      console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
-        'As of v1.8.0, the `title` option is deprecated. Please set the property `INPUT_TITLE_ATTRIBUTE` on the `textStrings` option instead. `title` will be removed in a future version.');
+      //console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
+        //'As of v1.8.0, the `title` option is deprecated. Please set the property `INPUT_TITLE_ATTRIBUTE` on the `textStrings` option instead. `title` will be removed in a future version.');
     }
 
     // `placeholder` is not deprecated, but it is an alias for textStrings.INPUT_PLACEHOLDER
@@ -130,14 +130,6 @@ var Geocoder = L.Control.extend({
     // Now merge user-specified options
     L.Util.setOptions(this, options);
     this.markers = [];
-
-    // Deprecation warnings for Mapzen hosted service.
-    // Make sure people aware of Mapzen hosted services are going down.
-    var mapzenHostedServiceUrl = '//search.mapzen.com';
-
-    if (this.options.url.indexOf(mapzenHostedServiceUrl) > -1) {
-      console.warn('Mapzen is shutting down its services including Search. Read more at https://mapzen.com/blog/shutdown. To learn more about Pelias, the open-source geocoder that powers Mapzen Search, and the Pelias team’s plan for the future, please visit http://pelias.io.');
-    }
   },
 
   /**
@@ -151,17 +143,6 @@ var Geocoder = L.Control.extend({
     this.removeMarkers();
     this.clearResults();
     this.fire('reset');
-  },
-
-  getLayers: function (params) {
-    var layers = this.options.layers;
-
-    if (!layers) {
-      return params;
-    }
-
-    params.layers = layers;
-    return params;
   },
 
   getBoundingBoxParam: function (params) {
@@ -195,47 +176,8 @@ var Geocoder = L.Control.extend({
     }
 
     function makeParamsFromLeaflet (params, latLngBounds) {
-      params['boundary.rect.min_lon'] = latLngBounds.getWest();
-      params['boundary.rect.min_lat'] = latLngBounds.getSouth();
-      params['boundary.rect.max_lon'] = latLngBounds.getEast();
-      params['boundary.rect.max_lat'] = latLngBounds.getNorth();
+      params['viewbox'] = latLngBounds.getWest() + ',' + latLngBounds.getSouth() + ',' + latLngBounds.getEast() + ',' latLngBounds.getNorth();
       return params;
-    }
-
-    return params;
-  },
-
-  getFocusParam: function (params) {
-    /**
-     * this.options.focus can be one of the following
-     * [50, 30]           // Array
-     * {lon: 30, lat: 50} // Object
-     * {lat: 50, lng: 30} // Object
-     * L.latLng(50, 30)   // Object
-     * true               // Boolean - take the map center
-     * false              // Boolean - No latlng to be considered
-     */
-    var focus = this.options.focus;
-
-    if (!focus) {
-      return params;
-    }
-
-    if (focus === true && this._map) {
-      // If focus option is Boolean true, use current map center
-      var mapCenter = this._map.getCenter();
-      params['focus.point.lat'] = mapCenter.lat;
-      params['focus.point.lon'] = mapCenter.lng;
-    } else if (typeof focus === 'object') {
-      // Accepts array, object and L.latLng form
-      // Constructs the latlng object using Leaflet's L.latLng()
-      // [50, 30]
-      // {lon: 30, lat: 50}
-      // {lat: 50, lng: 30}
-      // L.latLng(50, 30)
-      var latlng = L.latLng(focus);
-      params['focus.point.lat'] = latlng.lat;
-      params['focus.point.lon'] = latlng.lng;
     }
 
     return params;
@@ -249,8 +191,6 @@ var Geocoder = L.Control.extend({
   getParams: function (params) {
     params = params || {};
     params = this.getBoundingBoxParam(params);
-    params = this.getFocusParam(params);
-    params = this.getLayers(params);
 
     // Search API key
     if (this.apiKey) {
@@ -313,7 +253,7 @@ var Geocoder = L.Control.extend({
 
     var url = this.options.url + '/search';
     var params = {
-      text: input
+      q: input
     };
 
     this.callPelias(url, params, 'search');
@@ -323,29 +263,13 @@ var Geocoder = L.Control.extend({
     // Prevent lack of input from sending a malformed query to Pelias
     if (!input) return;
 
-    var url = this.options.url + '/autocomplete';
+    var url = this.options.url + '/search';
     var params = {
       text: input
     };
 
     this.callPelias(url, params, 'autocomplete');
   }, API_RATE_LIMIT),
-
-  place: function (id) {
-    // Prevent lack of input from sending a malformed query to Pelias
-    if (!id) return;
-
-    var url = this.options.url + '/place';
-    var params = {
-      ids: id
-    };
-
-    this.callPelias(url, params, 'place');
-  },
-
-  handlePlaceResponse: function (response) {
-    // Placeholder for handling place response
-  },
 
   // Timestamp of the last response which was successfully rendered to the UI.
   // The time represents when the request was *sent*, not when it was recieved.
@@ -443,11 +367,6 @@ var Geocoder = L.Control.extend({
             // Record the timestamp of the request.
             self.maxReqTimestampRendered = reqStartedAt;
           }
-        }
-
-        // Placeholder: handle place response
-        if (type === 'place') {
-          self.handlePlaceResponse(results);
         }
 
         // Show results
@@ -598,7 +517,7 @@ var Geocoder = L.Control.extend({
 
   /**
    * Fits the map view to a given bounding box.
-   * Mapzen Search / Pelias returns the 'bbox' property on 'feature'. It is
+   * Mapzen Search / Pelias returns the 'boundingbox' property on 'feature'. It is
    * as an array of four numbers:
    *   [
    *     0: southwest longitude,
@@ -609,10 +528,10 @@ var Geocoder = L.Control.extend({
    * This method expects the array to be passed directly and it will be converted
    * to a boundary parameter for Leaflet's fitBounds().
    */
-  fitBoundingBox: function (bbox) {
+  fitBoundingBox: function (boundingbox) {
     this._map.fitBounds([
-      [ bbox[1], bbox[0] ],
-      [ bbox[3], bbox[2] ]
+      [ boundingbox[1], boundingbox[0] ],
+      [ boundingbox[3], boundingbox[2] ]
     ], {
       animate: true,
       maxZoom: 16
@@ -620,13 +539,12 @@ var Geocoder = L.Control.extend({
   },
 
   setSelectedResult: function (selected, originalEvent) {
-    var latlng = L.GeoJSON.coordsToLatLng(selected.feature.geometry.coordinates);
+    var latlng = L.GeoJSON.coordsToLatLng(selected.lat, selected.lon);
     this._input.value = selected.textContent || selected.innerText;
-    var layer = selected.feature.properties.layer;
-    // "point" layers (venue and address in Pelias) must always display markers
-    if ((layer !== 'venue' && layer !== 'address') && selected.feature.bbox && !this.options.overrideBbox) {
+    
+    if (selected.feature.bbox && !this.options.overrideBbox) {
       this.removeMarkers();
-      this.fitBoundingBox(selected.feature.bbox);
+      this.fitBoundingBox(selected.boundingbox);
     } else {
       this.removeMarkers();
       this.showMarker(selected.innerHTML, latlng);
@@ -634,16 +552,9 @@ var Geocoder = L.Control.extend({
     this.fire('select', {
       originalEvent: originalEvent,
       latlng: latlng,
-      feature: selected.feature
+      feature: selected
     });
     this.blur();
-
-    // Not all features will be guaranteed to have `gid` property - interpolated
-    // addresses, for example, cannot be retrieved with `/place` and so the `gid`
-    // property for them may be dropped in the future.
-    if (this.options.place && selected.feature.properties.gid) {
-      this.place(selected.feature.properties.gid);
-    }
   },
 
   /**
@@ -828,14 +739,12 @@ var Geocoder = L.Control.extend({
 
         var panToPoint = function (selected, options) {
           if (selected && options.panToPoint) {
-            var layer = selected.feature.properties.layer;
-            // "point" layers (venue and address in Pelias) must always display markers
-            if ((layer !== 'venue' && layer !== 'address') && selected.feature.bbox && !options.overrideBbox) {
+            if (selected.boundingbox && !options.overrideBbox) {
               self.removeMarkers();
-              self.fitBoundingBox(selected.feature.bbox);
+              self.fitBoundingBox(selected.boundingbox);
             } else {
               self.removeMarkers();
-              self.showMarker(selected.innerHTML, L.GeoJSON.coordsToLatLng(selected.feature.geometry.coordinates));
+              self.showMarker(selected.innerHTML, L.GeoJSON.coordsToLatLng(selected.lat, selected.lon));
             }
           }
         };
@@ -891,8 +800,8 @@ var Geocoder = L.Control.extend({
             this._input.value = highlighted.textContent || highlighted.innerText;
             this.fire('highlight', {
               originalEvent: e,
-              latlng: L.GeoJSON.coordsToLatLng(highlighted.feature.geometry.coordinates),
-              feature: highlighted.feature
+              latlng: L.GeoJSON.coordsToLatLng(highlighted.lat, highlighted.lon),
+              feature: highlighted
             });
 
             L.DomEvent.preventDefault(e);
@@ -917,8 +826,8 @@ var Geocoder = L.Control.extend({
             this._input.value = highlighted.textContent || highlighted.innerText;
             this.fire('highlight', {
               originalEvent: e,
-              latlng: L.GeoJSON.coordsToLatLng(highlighted.feature.geometry.coordinates),
-              feature: highlighted.feature
+              latlng: L.GeoJSON.coordsToLatLng(highlighted.lat, highlighted.lon),
+              feature: highlighted
             });
 
             L.DomEvent.preventDefault(e);
