@@ -97,16 +97,16 @@ var Geocoder = L.Control.extend({
       if (typeof options.focus === 'undefined') {
         options.focus = options.latlng;
       }
-      //console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
-        //'As of v1.6.0, the `latlng` option is deprecated. It has been renamed to `focus`. `latlng` will be removed in a future version.');
+      // console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
+        // 'As of v1.6.0, the `latlng` option is deprecated. It has been renamed to `focus`. `latlng` will be removed in a future version.');
     }
 
     // Deprecate `title` option
     if (options && typeof options.title !== 'undefined') {
       options.textStrings = options.textStrings || {};
       options.textStrings.INPUT_TITLE_ATTRIBUTE = options.title;
-      //console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
-        //'As of v1.8.0, the `title` option is deprecated. Please set the property `INPUT_TITLE_ATTRIBUTE` on the `textStrings` option instead. `title` will be removed in a future version.');
+      // console.warn('[leaflet-geocoder-mapzen] DEPRECATION WARNING:',
+        // 'As of v1.8.0, the `title` option is deprecated. Please set the property `INPUT_TITLE_ATTRIBUTE` on the `textStrings` option instead. `title` will be removed in a future version.');
     }
 
     // `placeholder` is not deprecated, but it is an alias for textStrings.INPUT_PLACEHOLDER
@@ -176,7 +176,7 @@ var Geocoder = L.Control.extend({
     }
 
     function makeParamsFromLeaflet (params, latLngBounds) {
-      params['viewbox'] = latLngBounds.getWest() + ',' + latLngBounds.getSouth() + ',' + latLngBounds.getEast() + ',' latLngBounds.getNorth();
+      params['viewbox'] = latLngBounds.getWest() + ',' + latLngBounds.getSouth() + ',' + latLngBounds.getEast() + ',' + latLngBounds.getNorth();
       return params;
     }
 
@@ -541,7 +541,7 @@ var Geocoder = L.Control.extend({
   setSelectedResult: function (selected, originalEvent) {
     var latlng = L.GeoJSON.coordsToLatLng(selected.lat, selected.lon);
     this._input.value = selected.textContent || selected.innerText;
-    
+
     if (selected.feature.bbox && !this.options.overrideBbox) {
       this.removeMarkers();
       this.fitBoundingBox(selected.boundingbox);

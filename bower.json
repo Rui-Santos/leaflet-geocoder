@@ -1,5 +1,5 @@
 {
-  "name": "leaflet-geocoder-mapzen",
+  "name": "tpp-leaflet-geocoder",
   "version": "1.9.4",
   "homepage": "https://github.com/mapzen/leaflet-geocoder",
   "authors": [
@@ -7,7 +7,7 @@
     "Lou Huang <lou@mapzen.com>"
   ],
   "description": "Add Mapzen Search geocoding to your Leaflet map.",
-  "main": "dist/leaflet-geocoder-mapzen.js",
+  "main": "dist/tpp-leaflet-geocoder.js",
   "moduleType": [
     "amd",
     "globals",

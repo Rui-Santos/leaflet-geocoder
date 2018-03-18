@@ -10,10 +10,10 @@
     "build": "npm run build-js && npm run build-css",
     "build-js": "npm run bundle-js && npm run minify-js",
     "build-css": "npm run bundle-css && npm run minify-css",
-    "bundle-js": "browserify -t browserify-shim -p browserify-derequire -o dist/leaflet-geocoder-mapzen.js src/index.js",
+    "bundle-js": "browserify -t browserify-shim -p browserify-derequire -o dist/tpp-leaflet-geocoder.js src/index.js",
     "bundle-css": "cp src/*.css dist/",
-    "minify-js": "uglifyjs dist/leaflet-geocoder-mapzen.js -o dist/leaflet-geocoder-mapzen.min.js",
-    "minify-css": "cleancss -o dist/leaflet-geocoder-mapzen.min.css dist/leaflet-geocoder-mapzen.css",
+    "minify-js": "uglifyjs dist/tpp-leaflet-geocoder.js -o dist/tpp-leaflet-geocoder.min.js",
+    "minify-css": "cleancss -o dist/tpp-leaflet-geocoder.min.css dist/tpp-leaflet-geocoder.css",
     "prepublish": "npm run build",
     "pretest": "npm run bundle-js && npm run bundle-css",
     "test": "jake"
@@ -43,8 +43,8 @@
     "leaflet": "^0.7.x || ^1.0.0 || >=1.0.0-beta.1 || >=1.0.0-rc.1"
   },
   "dependencies": {
-    "console-polyfill": "0.2.3",
-    "@mapbox/corslite": "0.0.7"
+    "@mapbox/corslite": "0.0.7",
+    "console-polyfill": "0.2.3"
   },
   "devDependencies": {
     "browserify": "14.3.0",
